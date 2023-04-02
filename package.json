@@ -14,7 +14,7 @@
     "@react-native-community/google-signin": "^5.0.0",
     "@react-native-firebase/app": "^15.4.0",
     "@react-native-firebase/auth": "^15.4.0",
-    "@silencelaboratories/react-native-recovery-kit": "^1.0.5",
+    "@com.silencelaboratories/react-native-recovery-kit": "^1.0.5",
     "@types/totp-generator": "^0.0.4",
     "aws-sdk": "^2.1199.0",
     "axios": "^0.27.2",

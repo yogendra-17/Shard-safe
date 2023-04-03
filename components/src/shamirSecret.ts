@@ -40,6 +40,7 @@ function div_gf2(a: BN, b: BN): {q: BN; r: BN} {
 class Element {
   irr_poly: BN;
   val: BN;
+
   constructor(encoded_val: Buffer | BN) {
     this.irr_poly = new BN.BN(1, 10)
       .add(new BN.BN(2, 10).pow(new BN.BN(121, 10)))
@@ -60,13 +61,6 @@ class Element {
   equals(gf_val: Element): boolean {
     return this.val.eq(gf_val._int());
   }
-
-  _encode(): Buffer {
-    if (this.val.toString(16).length % 2)
-      return Buffer.from('0' + this.val.toString(16), 'hex');
-    return Buffer.from(this.val.toString(16), 'hex');
-  }
-
   _mul(fac: Element): Element {
     let f1 = this.val;
     let f2 = fac.val;
@@ -96,6 +90,13 @@ class Element {
     }
     return new Element(z);
   }
+
+   _encode(): Buffer {
+      if (this.val.toString(16).length % 2)
+        return Buffer.from('0' + this.val.toString(16), 'hex');
+      return Buffer.from(this.val.toString(16), 'hex');
+    }
+
 
   _add(term: Element): Element {
     return new Element(this.val.xor(term.val));
@@ -162,6 +163,7 @@ const splitSSS = async (n: number, k: number, sec: string) => {
   }
   return res;
 };
+
 
 const joinSSS = (shares: {x: string; y: string}[]): string => {
   let k: number = shares.length,

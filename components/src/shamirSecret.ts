@@ -1,98 +1,93 @@
-import {Buffer} from 'buffer';
+import { Buffer } from 'buffer';
 import BN from 'bn.js';
-//@ts-ignore
-import {randomBytes} from 'react-native-randombytes';
+import { randomBytes } from 'react-native-randombytes';
 
-function mul_gf2(f1: BN, f2: BN): BN {
-  if (f2.gt(f1)) {
-    let temp = f1;
-    f1 = f2;
-    f2 = temp;
-  }
-  let z: BN = new BN.BN(0, 10);
-  while (!f2.isZero()) {
-    if (!f2.and(new BN.BN(1, 10)).isZero()) {
-      z = z.xor(f1);
-    }
-    f1 = f1.shln(1);
-    f2 = f2.shrn(1);
-  }
-  return z;
+function multiplyGF2(field1: BN, field2: BN): BN {
+if (field2.gt(field1)) {
+[field1, field2] = [field2, field1];
+}
+let result = new BN.BN(0, 10);
+while (!field2.isZero()) {
+if (!field2.and(new BN.BN(1, 10)).isZero()) {
+result = result.xor(field1);
+}
+field1 = field1.shln(1);
+field2 = field2.shrn(1);
+}
+return result;
 }
 
-function div_gf2(a: BN, b: BN): {q: BN; r: BN} {
-  if (a.lt(b)) {
-    return {q: new BN.BN(0, 10), r: a};
-  }
+function divideGF2(a: BN, b: BN): { quotient: BN; remainder: BN } {
+if (a.lt(b)) {
+return { quotient: new BN.BN(0, 10), remainder: a };
+}
 
-  let q: BN = new BN.BN(0, 10),
-    r: BN = a,
-    deg_b: number = b.bitLength(),
-    s: BN;
-  while (r.bitLength() >= deg_b) {
-    s = new BN.BN(1, 10).shln(r.bitLength() - deg_b);
-    q = q.xor(s);
-    r = r.xor(mul_gf2(b, s));
-  }
-  return {q: q, r: r};
+let quotient = new BN.BN(0, 10);
+let remainder = a;
+let degreeB = b.bitLength();
+let s;
+while (remainder.bitLength() >= degreeB) {
+s = new BN.BN(1, 10).shln(remainder.bitLength() - degreeB);
+quotient = quotient.xor(s);
+remainder = remainder.xor(multiplyGF2(b, s));
+}
+return { quotient, remainder };
 }
 
 class Element {
-  irr_poly: BN;
-  val: BN;
-  constructor(encoded_val: Buffer | BN) {
-    this.irr_poly = new BN.BN(1, 10)
-      .add(new BN.BN(2, 10).pow(new BN.BN(121, 10)))
-      .add(new BN.BN(2, 10).pow(new BN.BN(178, 10)))
-      .add(new BN.BN(2, 10).pow(new BN.BN(241, 10)))
-      .add(new BN.BN(2, 10).pow(new BN.BN(256, 10)));
-    if (encoded_val instanceof Buffer) {
-      this.val = new BN(encoded_val.toString('hex'), 16);
-    } else {
-      this.val = encoded_val;
-    }
+  private _mul(x_m: Element): Element {
+    throw new Error('Method not implemented.');
   }
-
-  _int(): BN {
-    return this.val;
+  private _encode() {
+    throw new Error('Method not implemented.');
   }
+irrPoly: BN;
+value: BN;
 
-  equals(gf_val: Element): boolean {
-    return this.val.eq(gf_val._int());
-  }
+constructor(encodedValue: Buffer | BN) {
+this.irrPoly = new BN.BN(1, 10)
+.add(new BN.BN(2, 10).pow(new BN.BN(121, 10)))
+.add(new BN.BN(2, 10).pow(new BN.BN(178, 10)))
+.add(new BN.BN(2, 10).pow(new BN.BN(241, 10)))
+.add(new BN.BN(2, 10).pow(new BN.BN(256, 10)));
+if (encodedValue instanceof Buffer) {
+this.value = new BN(encodedValue.toString('hex'), 16);
+} else {
+this.value = encodedValue;
+}
+}
 
-  _encode(): Buffer {
-    if (this.val.toString(16).length % 2)
-      return Buffer.from('0' + this.val.toString(16), 'hex');
-    return Buffer.from(this.val.toString(16), 'hex');
-  }
+asNumber(): BN {
+return this.value;
+}
 
-  _mul(fac: Element): Element {
-    let f1 = this.val;
-    let f2 = fac.val;
-    if (f2.gt(f1)) {
-      [f1, f2] = [f2, f1];
-    }
-    if (this.irr_poly == f1 || this.irr_poly == f2) {
-      return new Element(new BN.BN(0, 10));
-    }
-    let mask1 = new BN.BN(2, 10).pow(new BN.BN(256, 10)),
-      [v, z] = [f1, new BN.BN(0, 10)],
-      mask2: BN,
-      mask3: BN;
-    while (!f2.isZero()) {
-      mask2 = new BN.BN(f2.and(new BN.BN(1, 10)).toString(2).repeat(256), 2);
-      z = mask2.and(z.xor(v)).or(mask1.sub(mask2).sub(new BN.BN(1, 10)).and(z));
-      v = v.shln(1);
+equals(other: Element): boolean {
+return this.value.eq(other.asNumber());
+}
 
-      mask3 = new BN.BN(
-        v.shrn(256).and(new BN.BN(1, 10)).toString(2).repeat(256),
-        2,
-      );
-      v = mask3
-        .and(v.xor(this.irr_poly))
-        .or(mask1.sub(mask3).sub(new BN.BN(1, 10)).and(v));
-      f2 = f2.shrn(1);
+toBuffer(): Buffer {
+if (this.value.toString(16).length % 2) {
+return Buffer.from('0' + this.value.toString(16), 'hex');
+}
+return Buffer.from(this.value.toString(16), 'hex');
+}
+
+multiply(factor: Element): Element {
+let field1 = this.value;
+let field2 = factor.value;
+if (field2.gt(field1)) {
+[field1, field2] = [field2, field1];
+}
+if (this.irrPoly === field1 || this.irrPoly === field2) {
+return new Element(new BN.BN(0, 10));
+}
+let mask1 = new BN.BN(2, 10).pow(new BN.BN(256, 10));
+let z = new BN.BN(0, 10);
+let mask2, mask3;
+while (!field2.isZero()) {
+mask2 = new BN.BN(field2.and(new BN.BN(1, 10)).toString(2).repeat(256), 2);
+z = mask2.and 
+  f2 = f2.shrn(1);
     }
     return new Element(z);
   }
@@ -207,3 +202,4 @@ export const join = (ownerShare: {x:string, y:string}[], share: {x: string, y: s
   ownerShare.push(otherHalf);
   return joinSSS(ownerShare);
 }
+

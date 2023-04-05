@@ -26,6 +26,9 @@ MainApplicationTurboModuleManagerDelegate::getTurboModule(
     const std::shared_ptr<CallInvoker> &jsInvoker) {
   // Not implemented yet: provide pure-C++ NativeModules here.
   return nullptr;
+     const std::string &name) {
+  return getTurboModule(name, nullptr) != nullptr ||
+      getTurboModule(name, {.moduleName = name}) != nullptr;
 }
 
 std::shared_ptr<TurboModule>

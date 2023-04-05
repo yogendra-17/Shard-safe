@@ -46,8 +46,8 @@ MainComponentsRegistry::initHybrid(
     mutableRegistry->setFallbackComponentDescriptor(
         std::make_shared<UnimplementedNativeViewComponentDescriptor>(
             ComponentDescriptorParameters{
-                eventDispatcher, contextContainer, nullptr}));
-
+                eventDispatcher, contextContainer, nullptr});
+              
     return registry;
   };
 

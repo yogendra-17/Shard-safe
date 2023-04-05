@@ -249,7 +249,7 @@ const App = () => {
                 onPress={reset}/>
             </View>
             <View>
-              <Text style = { {fontWeight: 'bold', alignContent: 'center'} }>N: {numberOfShares}, T: {threshold}</Text>
+              <Text style = { {fontWeight: 'bold', alignContent: 'center' , } }>N: {numberOfShares}, T: {threshold}</Text>
             </View>
 
             {emaillist.map((val) => (
@@ -263,8 +263,10 @@ const App = () => {
             ))}
 
             <TouchableOpacity
-              style={[styles.buttonContainer, {backgroundColor: '#ffffff'}]}
+              style={[styles.buttonContainer, {backgroundColor: '#ffffff'}, {marginTop: 24}, {marginBottom: 24}]}
               onPress={
+                  
+               
                 async () =>
                 {
                   var seed:string[] = [];
@@ -301,7 +303,7 @@ const App = () => {
               </View>
             </TouchableOpacity>
             <TouchableOpacity
-              style={[styles.buttonContainer, {backgroundColor: '#ffffff'}]}
+              style={[styles.buttonContainer, {backgroundColor: '#ffffff'}, {marginTop: 24}, {marginBottom: 24}]}
               onPress={async () => {
                 const data: Boolean = await RecoveryKit.uploadRecollect({
                   drive: {
@@ -373,6 +375,17 @@ const App = () => {
                         const filename: string = obj.filename;
                         await RecoveryKit.approve({token, fileId, filename, Owner:obj.Owner})
                         console.log("here2");
+                        setpendingReq(pendingReq.filter((obj)=>obj.fileId!=fileId));
+                      }}></Button>
+                    <Button title='Reject'
+
+                      onPress={async () => {
+                        const fileId:string = obj.fileId;
+                        
+                        
+                        setpendingReq(pendingReq.filter((obj)=>obj.fileId!=fileId));
+
+  
                         }
                       }></Button>
                   </View>

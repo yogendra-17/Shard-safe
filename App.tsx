@@ -196,26 +196,13 @@ const App = () => {
                obj.seed != "ERROR"
               ).map((obj) =>
                 (
-                <View key={obj.seed} style={{paddingLeft:30,
-                                              paddingRight:30, 
-                                              
-                                              shadowOpacity:0.3,
-                                              shadowColor:'#171717',
-                                              shadowOffset:{width: -2, height: 4},}}>
-                  <Text key={obj.seed} style={{marginTop:"5%",
-                                              borderStyle:"solid",
-                                              backgroundColor:"#e8e0c3",
-                                              
-                                              borderRadius:25,
-                                              padding:8,
-                                              fontWeight:'bold',
-                                              // height:"3%",
-                                              }}>OTP for {obj.account_name} is {OTPAuth(obj.seed)}</Text>
+                <View key={obj.seed}>
+                  <Text key={obj.seed}>OTP for {obj.account_name} is {OTPAuth(obj.seed)}</Text>
                 </View>
                 )
               )
             }
-            <View style={[styles.btnTxtWrapper, {marginTop: 10, bottom:0, position:"absolute", marginBottom:10, marginLeft:"25%"}]}>
+            <View>
             <Button
               title='Delete all accounts!'
               onPress={delAcc}/>
